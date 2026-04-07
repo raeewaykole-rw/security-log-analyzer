@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini SIEM Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #f3f7f2;
+      --panel: #ffffff;
+      --ink: #112316;
+      --accent: #1c7c54;
+      --warn: #b94a00;
+      --danger: #b42318;
+      --muted: #60706a;
+      --border: #d4ddd8;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 10% 10%, #d9efe3, transparent 30%), var(--bg);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      background: linear-gradient(120deg, #e6f4ec, #ffffff);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 { margin: 0 0 6px 0; }
+    .hero p { margin: 0; color: var(--muted); }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .kpi-label { color: var(--muted); font-size: 13px; }
+    .kpi-value { font-size: 28px; font-weight: bold; margin-top: 4px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      padding: 8px 4px;
+      vertical-align: top;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      text-transform: uppercase;
+    }
+
+    .low { background: #4f7d5b; }
+    .medium { background: var(--warn); }
+    .high { background: #c2410c; }
+    .critical { background: var(--danger); }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>Mini SIEM Security Dashboard</h1>
+      <p>Correlated detections for brute-force behavior, success-after-failure patterns, and port scanning.</p>
+    </section>
+
+    <section class="kpis">
+      <div class="card">
+        <div class="kpi-label">Total Parsed Events</div>
+        <div class="kpi-value">{{ data.total_events }}</div>
+      </div>
+      <div class="card">
+        <div class="kpi-label">Total Alerts</div>
+        <div class="kpi-value">{{ data.total_alerts }}</div>
+      </div>
+      <div class="card">
+        <div class="kpi-label">Unique Attack Types</div>
+        <div class="kpi-value">{{ data.attack_counts|length }}</div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h3>Attack Distribution</h3>
+        <canvas id="attackChart" height="180"></canvas>
+      </div>
+      <div class="card">
+        <h3>Severity Distribution</h3>
+        <canvas id="severityChart" height="180"></canvas>
+      </div>
+
+      <div class="card">
+        <h3>Top Suspicious IPs</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>IP</th>
+              <th>Score</th>
+              <th>Top Reasons</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in data.top_ips %}
+            <tr>
+              <td>{{ row.ip }}</td>
+              <td>{{ row.score }}</td>
+              <td>{{ row.reasons|join(', ') }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Recent Alerts</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Source IP</th>
+              <th>Severity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for alert in data.recent_alerts %}
+            <tr>
+              <td>{{ alert.type }}</td>
+              <td>{{ alert.source_ip }}</td>
+              <td><span class="badge {{ alert.severity }}">{{ alert.severity }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const attackCounts = {{ data.attack_counts | tojson }};
+    const severityCounts = {{ data.severity_counts | tojson }};
+
+    new Chart(document.getElementById('attackChart'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(attackCounts),
+        datasets: [{
+          label: 'Detections',
+          data: Object.values(attackCounts),
+          backgroundColor: ['#1c7c54', '#247ba0', '#c2410c', '#b42318']
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    new Chart(document.getElementById('severityChart'), {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(severityCounts),
+        datasets: [{
+          data: Object.values(severityCounts),
+          backgroundColor: ['#4f7d5b', '#b94a00', '#c2410c', '#b42318']
+        }]
+      },
+      options: { responsive: true }
+    });
+  </script>
+</body>
+</html>

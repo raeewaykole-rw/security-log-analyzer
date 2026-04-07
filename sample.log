@@ -1,0 +1,17 @@
+Mar 18 10:00:01 ubuntu sshd[1111]: Failed password for invalid user admin from 203.0.113.10 port 49201 ssh2
+Mar 18 10:00:05 ubuntu sshd[1112]: Failed password for invalid user admin from 203.0.113.10 port 49202 ssh2
+Mar 18 10:00:10 ubuntu sshd[1113]: Failed password for root from 203.0.113.10 port 49203 ssh2
+Mar 18 10:00:15 ubuntu sshd[1114]: Failed password for root from 203.0.113.10 port 49204 ssh2
+Mar 18 10:00:20 ubuntu sshd[1115]: Failed password for root from 203.0.113.10 port 49205 ssh2
+Mar 18 10:00:24 ubuntu sshd[1116]: Failed password for root from 203.0.113.10 port 49206 ssh2
+Mar 18 10:00:29 ubuntu sshd[1117]: Failed password for root from 203.0.113.10 port 49207 ssh2
+Mar 18 10:03:00 ubuntu sshd[1120]: Accepted password for root from 203.0.113.10 port 49211 ssh2
+Mar 18 10:07:01 ubuntu kernel: [UFW BLOCK] SRC=198.51.100.7 DST=10.0.0.5 DPT=22
+Mar 18 10:07:03 ubuntu kernel: [UFW BLOCK] SRC=198.51.100.7 DST=10.0.0.5 DPT=80
+Mar 18 10:07:06 ubuntu kernel: [UFW BLOCK] SRC=198.51.100.7 DST=10.0.0.5 DPT=443
+Mar 18 10:07:09 ubuntu kernel: [UFW BLOCK] SRC=198.51.100.7 DST=10.0.0.5 DPT=445
+Mar 18 10:07:12 ubuntu kernel: [UFW BLOCK] SRC=198.51.100.7 DST=10.0.0.5 DPT=3306
+Mar 18 10:07:15 ubuntu kernel: [UFW BLOCK] SRC=198.51.100.7 DST=10.0.0.5 DPT=3389
+Mar 18 10:09:10 ubuntu sshd[1132]: Failed password for invalid user test from 192.0.2.55 port 42311 ssh2
+Mar 18 10:09:14 ubuntu sshd[1134]: Failed password for invalid user test from 192.0.2.55 port 42312 ssh2
+Mar 18 10:09:20 ubuntu sshd[1138]: Accepted password for devops from 192.0.2.120 port 42315 ssh2
